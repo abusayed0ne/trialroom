@@ -1,4 +1,26 @@
-# Getting Started with Create React App
+# TrialRoom.ai
+
+A virtual try-on app powered by the Replicate IDM-VTON model.
+
+## Important: this app needs TWO servers
+
+The React app (port 3000) **cannot call Replicate directly** — your API token lives in
+the proxy server (port 3001), which forwards requests and adds the auth header. If the
+proxy isn't running, every try-on fails with an error screen.
+
+Run **both** with a single command:
+
+```
+npm run dev
+```
+
+This starts the proxy and the web app together. Then open http://localhost:3000.
+
+(Running `npm start` alone starts only the React app and will NOT work.)
+
+Make sure `.env` contains a valid `REPLICATE_TOKEN=...`.
+
+---
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
