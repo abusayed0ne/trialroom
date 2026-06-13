@@ -41,7 +41,7 @@ const STRINGS = {
     ],
     featLabel: "সুবিধাসমূহ", whyTitle: "কেন TrialRoom",
     features: [
-      { icon: "✦", t: "নিখুঁত AI ফিটিং", d: "IDM-VTON মডেল আপনার শরীরের মাপ অনুযায়ী পোশাক ফিট করে" },
+      { icon: "✦", t: "নিখুঁত AI ফিটিং", d: "AI আপনার শরীরের মাপ অনুযায়ী পোশাক ফিট করে" },
       { icon: "◷", t: "দ্রুত ফলাফল", d: "অল্প সময়েই রেজাল্ট — অপেক্ষার ঝামেলা নেই" },
       { icon: "♡", t: "সম্পূর্ণ বিনামূল্যে", d: "কোনো সাবস্ক্রিপশন নেই, কোনো লুকানো চার্জ নেই" },
       { icon: "⊘", t: "১০০% প্রাইভেট", d: "আপনার ছবি কোনো সার্ভারে সেভ হয় না" },
@@ -58,6 +58,8 @@ const STRINGS = {
     male: "পুরুষ", female: "মহিলা",
     tryOnSystem: "ট্রাই অন করুন",
     needBoth: "দুটো ছবিই আপলোড করুন!",
+    photoTip: "আপনি যেই ড্রেসের সাথে ট্রায়াল দিবেন, সেই ধরনের পোশাক পরা ছবি দিলে আরো ভালো ফলাফল পাবেন।",
+    freeModelNote: "এটি একটি ফ্রি AI মডেল — কখনো কখনো ভুল করতে পারে।",
     reupload: "ভালো রেজাল্টের জন্য পরিষ্কার ফুল-বডি ছবি ব্যবহার করুন",
     scanBody: "শরীরের অবস্থান বিশ্লেষণ করা হচ্ছে…",
     mapTex: "পোশাকের টেক্সচার ম্যাপিং…",
@@ -114,7 +116,7 @@ const STRINGS = {
     ],
     featLabel: "Why us", whyTitle: "Why TrialRoom",
     features: [
-      { icon: "✦", t: "Precise AI fitting", d: "IDM-VTON fits garments to your exact body shape" },
+      { icon: "✦", t: "Precise AI fitting", d: "AI fits garments to your exact body shape" },
       { icon: "◷", t: "Fast results", d: "Real-time processing — no waiting around" },
       { icon: "♡", t: "Completely free", d: "No subscription, no hidden charges" },
       { icon: "⊘", t: "100% private", d: "Your photos are never saved to any server" },
@@ -131,6 +133,8 @@ const STRINGS = {
     male: "Male", female: "Female",
     tryOnSystem: "Try It On",
     needBoth: "Please upload both photos!",
+    photoTip: "For best results, upload a photo that matches the style of garment you want to try on.",
+    freeModelNote: "This is a free AI model — results may not always be perfect.",
     reupload: "Use a clear full-body photo for the best results",
     scanBody: "Analysing body position…",
     mapTex: "Mapping garment texture…",
@@ -351,7 +355,7 @@ function LoadingView({ s }) {
           <span style={{ color:T.accent, fontSize:11, fontFamily:BODY, fontWeight:600 }}>{Math.round(pct)}%</span>
         </div>
       </div>
-      <div style={{ color:T.textDim, fontSize:11, fontFamily:BODY, letterSpacing:"1px" }}>Powered by IDM-VTON · Free</div>
+      <div style={{ color:T.textDim, fontSize:11, fontFamily:BODY, letterSpacing:"1px" }}>AI Virtual Try-On · Free</div>
     </div>
   );
 }
@@ -407,6 +411,11 @@ function ResultView({ item, onRetry, s, resultImg, resp }) {
             <span style={{ width:6, height:6, borderRadius:99, background:T.accent }}/>{s.aiGenerated}
           </div>
         </div>
+      </div>
+
+      <div style={{ background:T.bgSoft, border:`1px solid ${T.line}`, borderRadius:12, padding:"10px 14px", display:"flex", gap:9, alignItems:"flex-start", marginBottom:12 }}>
+        <span style={{ fontSize:15, flexShrink:0 }}>ℹ️</span>
+        <span style={{ color:T.textMuted, fontSize:12, fontFamily:BODY, lineHeight:1.6 }}>{s.freeModelNote}</span>
       </div>
 
       <div style={{ background:T.card, border:`1px solid ${T.line}`, borderRadius:14, padding:"13px 16px", display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:12, boxShadow:T.shadowSoft }}>
@@ -480,9 +489,15 @@ function TryOnPage({ s, resp }) {
       )}
 
       {/* Upload */}
-      <div style={{ display:"flex", gap:14, marginBottom:16, alignItems:"flex-start" }}>
+      <div style={{ display:"flex", gap:14, marginBottom:12, alignItems:"flex-start" }}>
         <UploadZone label={s.yourPhoto} hint={s.fullBody} accent={T.accent} s={s} onFile={setCustomerFile}/>
         <UploadZone label={s.garmentPhoto} hint={s.garmentHint} accent={T.clay} s={s} onFile={setGarmentFile}/>
+      </div>
+
+      {/* Photo tip */}
+      <div style={{ background:"#FFF4EF", border:`1px solid ${T.accentLine}`, borderRadius:12, padding:"10px 14px", display:"flex", gap:9, alignItems:"flex-start", marginBottom:16 }}>
+        <span style={{ fontSize:15, flexShrink:0 }}>💡</span>
+        <span style={{ color:T.accentDeep, fontSize:12.5, fontFamily:BODY, lineHeight:1.6 }}>{s.photoTip}</span>
       </div>
 
       {/* Config */}
@@ -642,10 +657,34 @@ function HomePage({ onStart, s, resp }) {
   );
 }
 
+// ─── FAVICON (mirror) ─────────────────────────────────────────────
+function setFavicon() {
+  const c = document.createElement("canvas"); c.width = c.height = 64;
+  const x = c.getContext("2d");
+  // orange rounded background
+  x.fillStyle = "#C2410C";
+  x.beginPath(); x.roundRect(0, 0, 64, 64, 9); x.fill();
+  // mirror glass
+  x.fillStyle = "rgba(255,255,255,0.15)";
+  x.beginPath(); x.ellipse(32, 25.6, 15.4, 19.2, 0, 0, Math.PI * 2); x.fill();
+  // mirror frame
+  x.strokeStyle = "#fff"; x.lineWidth = 3.2; x.lineCap = "round";
+  x.beginPath(); x.ellipse(32, 25.6, 15.4, 19.2, 0, 0, Math.PI * 2); x.stroke();
+  // stand stem
+  x.beginPath(); x.moveTo(32, 44.8); x.lineTo(32, 52.5); x.stroke();
+  // stand base
+  x.beginPath(); x.moveTo(23, 52.5); x.lineTo(41, 52.5); x.stroke();
+  document.querySelectorAll("link[rel*='icon']").forEach(l => l.remove());
+  const lnk = document.createElement("link");
+  lnk.rel = "icon"; lnk.href = c.toDataURL("image/png");
+  document.head.appendChild(lnk);
+}
+
 // ─── APP ROOT ─────────────────────────────────────────────────────
 export default function App() {
   const [page, setPage] = useState("home");
   const [lang, setLang] = useState("bn");
+  useEffect(() => setFavicon(), []);
   const s = STRINGS[lang];
   const resp = useResponsive();
 
@@ -670,7 +709,7 @@ export default function App() {
         <div style={{ position:"sticky", top:0, zIndex:30, backdropFilter:"blur(16px)", background:"rgba(247,244,239,.82)", borderBottom:`1px solid ${T.line}`, padding:`14px ${px}px` }}>
           <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:12 }}>
             <button onClick={() => setPage("home")} style={{ background:"none", border:"none", cursor:"pointer", textAlign:"left", display:"flex", alignItems:"center", gap:11 }}>
-              <div style={{ width:38, height:38, borderRadius:11, background:T.accentSoft, border:`1px solid ${T.accentLine}`, display:"flex", alignItems:"center", justifyContent:"center", fontFamily:HEAD, fontWeight:700, fontSize:19, color:T.accentDeep }}>T</div>
+              <img src={`${process.env.PUBLIC_URL}/logo.svg`} alt="TrialRoom" style={{ width:38, height:38, borderRadius:11 }}/>
               <div>
                 <div style={{ fontFamily:HEAD, fontWeight:600, fontSize: resp.isMobile?18:20, lineHeight:1, color:T.ink }}>
                   TrialRoom<span style={{ color:T.accent, fontSize:12 }}>.ai</span>
