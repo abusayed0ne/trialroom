@@ -50,7 +50,17 @@ module.exports = async function handler(req, res) {
     const url = typeof out === "string" ? out : out?.url;
     if (!url) throw new Error("Space returned no image.");
 
-    res.status(200).json({ image: url });
+    // Fetch image server-side and return as base64 data URL so the browser
+    // never has to hit the HF space directly (avoids auth/CORS/expiry issues).
+    const HF_TOKEN = process.env.HF_TOKEN || undefined;
+    const imgRes = await fetch(url, HF_TOKEN ? { headers: { Authorization: `Bearer ${HF_TOKEN}` } } : {});
+    if (!imgRes.ok) throw new Error(`Failed to fetch result image: ${imgRes.status}`);
+    const imgBuffer = await imgRes.arrayBuffer();
+    const contentType = imgRes.headers.get("content-type") || "image/webp";
+    const base64 = Buffer.from(imgBuffer).toString("base64");
+    const dataUrl = `data:${contentType};base64,${base64}`;
+
+    res.status(200).json({ image: dataUrl });
   } catch (err) {
     console.error("Try-on error:", err.message);
     res.status(502).json({ error: err.message || "Try-on failed." });

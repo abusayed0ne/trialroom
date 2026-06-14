@@ -80,8 +80,16 @@ const server = http.createServer((req, res) => {
       const url = typeof out === "string" ? out : out?.url;
       if (!url) throw new Error("Space returned no image.");
 
+      // Fetch image server-side to avoid auth/CORS/expiry issues in the browser.
+      const imgRes = await fetch(url, HF_TOKEN ? { headers: { Authorization: `Bearer ${HF_TOKEN}` } } : {});
+      if (!imgRes.ok) throw new Error(`Failed to fetch result image: ${imgRes.status}`);
+      const imgBuffer = await imgRes.arrayBuffer();
+      const contentType = imgRes.headers.get("content-type") || "image/webp";
+      const base64 = Buffer.from(imgBuffer).toString("base64");
+      const dataUrl = `data:${contentType};base64,${base64}`;
+
       res.writeHead(200, { "Content-Type": "application/json", ...CORS });
-      res.end(JSON.stringify({ image: url }));
+      res.end(JSON.stringify({ image: dataUrl }));
     } catch (err) {
       console.error("Try-on error:", err.message);
       res.writeHead(502, { "Content-Type": "application/json", ...CORS });
