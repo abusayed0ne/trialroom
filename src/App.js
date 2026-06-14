@@ -301,6 +301,10 @@ function LangToggle({ lang, setLang }) {
 
 // ─── ERROR VIEW ───────────────────────────────────────────────────
 function ErrorView({ error, onRetry, s }) {
+  const isQuota = error && (
+    /quota|zerogpu|exceeded|rate.?limit/i.test(error)
+  );
+
   return (
     <div style={{ animation:"fadeUp .45s ease", padding:"40px 24px", textAlign:"center", maxWidth:420, margin:"0 auto" }}>
       <div style={{ width:78, height:78, borderRadius:22, background:T.claySoft, border:`1px solid ${T.clay}3A`, margin:"0 auto 22px", display:"flex", alignItems:"center", justifyContent:"center", fontSize:36 }}>☁️</div>
@@ -308,11 +312,25 @@ function ErrorView({ error, onRetry, s }) {
       <p style={{ color:T.textMuted, fontSize:14, fontFamily:BODY, marginBottom:22, lineHeight:1.7 }}>
         The AI studio is busy or briefly unavailable. This usually clears up within a few minutes — please try again.
       </p>
-      {error && (
+
+      {isQuota ? (
+        <div style={{ background:T.bgSoft, border:`1px solid ${T.line}`, borderRadius:14, padding:"18px 20px", marginBottom:22 }}>
+          <div style={{ fontSize:13.5, color:T.text, fontFamily:BODY, lineHeight:1.8, marginBottom:12 }}>
+            This is a <strong>free tier</strong> service for beta testing purposes by <strong>Abu Sayed</strong>.<br/>
+            Please wait a moment and try again later. Thank you!
+          </div>
+          <div style={{ height:1, background:T.line, marginBottom:12 }}/>
+          <div style={{ fontSize:13, color:T.textMuted, fontFamily:BODY, lineHeight:1.8 }}>
+            এটি <strong>ফ্রি টায়ার</strong> সার্ভিস — <strong>Abu Sayed</strong>-এর বেটা টেস্টিং-এর জন্য।<br/>
+            অনুগ্রহ করে কিছুক্ষণ অপেক্ষা করে আবার চেষ্টা করুন। ধন্যবাদ!
+          </div>
+        </div>
+      ) : error ? (
         <div style={{ background:T.bgSoft, border:`1px solid ${T.line}`, borderRadius:12, padding:"13px 15px", marginBottom:22, textAlign:"left" }}>
           <div style={{ fontSize:12, color:T.clay, fontFamily:BODY, wordBreak:"break-word", lineHeight:1.5 }}>{error}</div>
         </div>
-      )}
+      ) : null}
+
       <button onClick={onRetry} style={{
         width:"100%", padding:"15px 0", background:T.ink, border:"none", borderRadius:14, color:"#fff",
         fontFamily:BODY, fontWeight:600, fontSize:14.5, cursor:"pointer", boxShadow:T.shadowSoft, transition:"transform .2s"
