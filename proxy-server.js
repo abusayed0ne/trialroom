@@ -50,9 +50,9 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  if (req.method !== "POST" || req.url !== "/tryon") {
+  if (req.method !== "POST" || req.url !== "/api/tryon") {
     res.writeHead(404, { "Content-Type": "application/json", ...CORS });
-    res.end(JSON.stringify({ error: "Not found. POST /tryon" }));
+    res.end(JSON.stringify({ error: "Not found. POST /api/tryon" }));
     return;
   }
 

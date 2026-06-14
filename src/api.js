@@ -1,23 +1,26 @@
-const PROXY = process.env.REACT_APP_PROXY_URL || "http://localhost:3001";
-
 export async function tryOnAPI(personFile, garmentFile, garmentLabel) {
   const human   = await toBase64(personFile);
   const garment = await toBase64(garmentFile);
 
   let res;
   try {
-    res = await fetch(`${PROXY}/tryon`, {
+    res = await fetch("/api/tryon", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ human, garment, description: garmentLabel }),
     });
   } catch {
     throw new Error(
-      `Could not reach the proxy server at ${PROXY}. Make sure it is running — start the app with "npm run dev" (runs proxy + web together).`
+      "Could not reach the try-on server. Make sure the app is running with \"npm run dev\"."
     );
   }
 
-  const data = await res.json();
+  let data;
+  try {
+    data = await res.json();
+  } catch {
+    throw new Error(`Server returned ${res.status} with no JSON body. Please try again.`);
+  }
   if (!res.ok || !data.image) {
     throw new Error(data.error || "Try-on failed. Please try again.");
   }
